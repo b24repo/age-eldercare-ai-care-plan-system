@@ -47,10 +47,26 @@ export class BackendService {
    * @returns {Promise<string>} Generated care plan
    */
   async generateCarePlan(clientData, prompt) {
-    return this.makeSecureCall('/api/ai/care-plan', {
-      clientData,
-      prompt
-    });
+    if (!clientData || !prompt) {
+      throw new Error('Client data and prompt are required');
+    }
+
+    try {
+      const response = await this.makeSecureCall('/api/ai/care-plan', {
+        clientData,
+        prompt
+      });
+
+      if (!response || !response.content || typeof response.content !== 'string') {
+        console.error('Invalid response from API:', response);
+        throw new Error('Invalid response from API');
+      }
+
+      return response.content;
+    } catch (error) {
+      console.error('Error in generateCarePlan:', error);
+      throw error;
+    }
   }
 
   /**
@@ -59,11 +75,11 @@ export class BackendService {
    * @returns {Promise<Object>} Quality scores
    */
   async assessQuality(carePlan) {
-    if (!carePlan || typeof carePlan !== 'string') {
+    if (!carePlan || typeof carePlan !== 'string' || carePlan.trim() === '') {
       throw new Error('Care plan must be a non-empty string');
     }
     return this.makeSecureCall('/api/ai/assess-quality', {
-      carePlan
+      carePlan: carePlan.trim()
     });
   }
 

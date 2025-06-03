@@ -76,7 +76,18 @@ export class OpenAIService {
             Format the final plan professionally with clear sections and actionable steps.`
       };
 
-      return await this.backend.generateCarePlan(clientData, systemPrompts[stage]);
+      if (!systemPrompts[stage]) {
+        throw new Error(`Invalid stage: ${stage}`);
+      }
+
+      const response = await this.backend.generateCarePlan(clientData, systemPrompts[stage]);
+      
+      if (!response || typeof response !== 'string') {
+        console.error('Invalid response from backend:', response);
+        throw new Error('Invalid response from backend service');
+      }
+
+      return response;
     } catch (error) {
       this.logError('generateCarePlan', error);
       throw error;
