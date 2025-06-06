@@ -22,10 +22,11 @@ app.use(helmet());
 app.use(compression());
 app.use(express.json({ limit: '1mb' }));
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || 'http://localhost:3000',
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
   methods: ['POST'],
   allowedHeaders: ['Content-Type']
 }));
+
 
 // Initialize OpenAI client
 const openai = new OpenAI({
